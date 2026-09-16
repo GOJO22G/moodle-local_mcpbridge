@@ -30,6 +30,25 @@ defined('MOODLE_INTERNAL') || die();
 class observers {
 
     /**
+     * Resolve which external service this plugin should bridge tokens into.
+     *
+     * Prefers an explicit admin-configured serviceid (backward compatible
+     * with existing installs), and falls back to the service auto-created
+     * on install (see db/install.php) when no override is set.
+     */
+    private static function resolve_service_id() {
+        global $DB;
+
+        $configured = get_config('local_mcpbridge', 'serviceid');
+        if (!empty($configured) && $DB->record_exists('external_services', ['id' => $configured])) {
+            return $configured;
+        }
+
+        $service = $DB->get_record('external_services', ['shortname' => 'mcpbridge_service']);
+        return $service ? $service->id : null;
+    }
+
+    /**
      * Fires when local_oauth2 creates or updates an access token for a user.
      * We mirror that same token string into external_tokens, scoped to
      * whichever web service this plugin is configured to bridge (see
@@ -44,17 +63,9 @@ class observers {
         $token      = $data['other']['accesstoken'];
         $validuntil = $data['other']['expires'];
 
-        // Which web service this bridges to - configured in plugin settings
-        // as a numeric external_services.id, since the shortname field on
-        // an existing service can't always be edited after creation.
-        $externalserviceid = get_config('local_mcpbridge', 'serviceid');
+        $externalserviceid = self::resolve_service_id();
         if (empty($externalserviceid)) {
-            debugging('local_mcpbridge: no serviceid configured, skipping token bridge', DEBUG_DEVELOPER);
-            return;
-        }
-
-        if (!$DB->record_exists('external_services', ['id' => $externalserviceid])) {
-            debugging("local_mcpbridge: service id '$externalserviceid' not found, skipping token bridge", DEBUG_DEVELOPER);
+            debugging('local_mcpbridge: no serviceid configured or auto-created, skipping token bridge', DEBUG_DEVELOPER);
             return;
         }
 
