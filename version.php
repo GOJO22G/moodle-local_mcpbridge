@@ -25,6 +25,10 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_mcpbridge';
+$plugin->dependencies = [
+    'local_oauth2' => ANY_VERSION,
+    'webservice_mcp' => ANY_VERSION,
+];
 $plugin->version   = 2026091300;
 $plugin->requires  = 2024100700;
 $plugin->maturity  = MATURITY_BETA;
