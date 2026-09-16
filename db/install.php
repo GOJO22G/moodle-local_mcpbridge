@@ -16,8 +16,9 @@
 
 /**
  * Post-install hook: auto-grants the webservice/mcp:use capability
- * to the Authenticated user role, so bridged tokens work without a
- * manual per-student capability grant.
+ * to the Authenticated user role, and auto-creates the external
+ * service this plugin bridges OAuth tokens into, so a fresh install
+ * needs no manual numeric service ID.
  *
  * @package    local_mcpbridge
  * @copyright  2026 AlmaBay Networks Pvt. Ltd.
@@ -33,20 +34,32 @@ function xmldb_local_mcpbridge_install() {
 
     if (!$role) {
         debugging('local_mcpbridge install: could not find Authenticated user role, skipping auto-grant', DEBUG_DEVELOPER);
-        return true;
+    } else {
+        $context = context_system::instance();
+
+        assign_capability(
+            'webservice/mcp:use',
+            CAP_ALLOW,
+            $role->id,
+            $context->id,
+            true
+        );
+
+        $context->mark_dirty();
     }
 
-    $context = context_system::instance();
-
-    assign_capability(
-        'webservice/mcp:use',
-        CAP_ALLOW,
-        $role->id,
-        $context->id,
-        true
-    );
-
-    $context->mark_dirty();
+    $shortname = 'mcpbridge_service';
+    if (!$DB->record_exists('external_services', ['shortname' => $shortname])) {
+        $service = new stdClass();
+        $service->name = 'MCP Bridge Service';
+        $service->shortname = $shortname;
+        $service->enabled = 1;
+        $service->restrictedusers = 0;
+        $service->component = null;
+        $service->timecreated = time();
+        $service->timemodified = time();
+        $DB->insert_record('external_services', $service);
+    }
 
     return true;
 }
