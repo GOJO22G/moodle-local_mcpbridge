@@ -30,8 +30,8 @@ if ($hassiteconfig) {
 
     $settings->add(new admin_setting_configtext(
         'local_mcpbridge/serviceid',
-        'Web service ID to bridge',
-        'The numeric ID of the existing external web service (e.g. your webservice_mcp custom service) that OAuth2 tokens should become valid for. Find this in the URL when editing the service under Site administration > Server > Web services > External services (e.g. .../service.php?id=2 means the ID is 2).',
+        'Web service ID to bridge (optional override)',
+        'Leave blank to use the "MCP Bridge Service" this plugin creates automatically on install. Only set this if you want OAuth tokens bridged into a different, already-existing external service instead - enter its numeric ID, found in the URL when editing the service under Site administration > Server > Web services > External services (e.g. .../service.php?id=2 means the ID is 2).',
         '',
         PARAM_INT
     ));
