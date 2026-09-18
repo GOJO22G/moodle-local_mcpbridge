@@ -1,4 +1,4 @@
-﻿# local_mcpbridge
+# local_mcpbridge
 
 Bridges `local_oauth2` access tokens into Moodle webservice tokens, so a
 student or staff member who logs in through OAuth (e.g. via a Gemini or

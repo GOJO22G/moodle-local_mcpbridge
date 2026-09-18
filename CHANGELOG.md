@@ -1,4 +1,4 @@
-﻿# Changelog
+# Changelog
 
 All notable changes to `local_mcpbridge` are documented here.
 

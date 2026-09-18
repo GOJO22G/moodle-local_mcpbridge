@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -28,3 +28,5 @@ $string['pluginname'] = 'MCP OAuth Bridge';
 $string['settingspagetitle'] = 'MCP OAuth Bridge';
 $string['serviceidname'] = 'Web service ID to bridge (optional override)';
 $string['serviceiddesc'] = 'Leave blank to use the "MCP Bridge Service" this plugin creates automatically on install. Only set this if you want OAuth tokens bridged into a different, already-existing external service instead - enter its numeric ID, found in the URL when editing the service under Site administration > Server > Web services > External services (e.g. .../service.php?id=2 means the ID is 2).';
+
+$string['task_cleanup_orphaned_scope'] = 'Clean up orphaned MCP bridge token scope records';

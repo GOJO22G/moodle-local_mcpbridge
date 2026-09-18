@@ -14,22 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Plugin version information.
- *
- * @package    local_mcpbridge
- * @copyright  2026 AlmaBay Networks Pvt. Ltd.
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->component = 'local_mcpbridge';
-$plugin->dependencies = [
-    'local_oauth2' => ANY_VERSION,
-    'webservice_mcp' => ANY_VERSION,
+$tasks = [
+    [
+        'classname' => 'local_mcpbridge\task\cleanup_orphaned_scope',
+        'blocking' => 0,
+        'minute' => '0',
+        'hour' => '3',
+        'day' => '*',
+        'month' => '*',
+        'dayofweek' => '*',
+    ],
 ];
-$plugin->version   = 2026091306;
-$plugin->requires  = 2024100700;
-$plugin->maturity  = MATURITY_BETA;
-$plugin->release   = '1.0.0';
