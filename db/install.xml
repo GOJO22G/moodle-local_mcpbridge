@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="local/mcpbridge/db" VERSION="20260917" COMMENT="XMLDB file for Moodle local/mcpbridge"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="../../../../lib/xmldb/xmldb.xsd"
+>
+  <TABLES>
+    <TABLE NAME="local_mcpbridge_token_scope" COMMENT="Maps a bridged webservice token to the OAuth scope granted at the moment it was created, so webservice_mcp can enforce read/write permissions without needing to re-match against local_oauth2's own token table.">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="token" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="The bridged token string, matching external_tokens.token."/>
+        <FIELD NAME="scope" TYPE="char" LENGTH="1333" NOTNULL="true" SEQUENCE="false" COMMENT="The OAuth scope string granted at token-creation time, e.g. 'openid profile moodle_mcp_read'."/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="token" UNIQUE="true" FIELDS="token"/>
+      </INDEXES>
+    </TABLE>
+  </TABLES>
+</XMLDB>

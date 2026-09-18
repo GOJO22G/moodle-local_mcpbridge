@@ -62,6 +62,7 @@ class observers {
         $userid     = $data['userid'];
         $token      = $data['other']['accesstoken'];
         $validuntil = $data['other']['expires'];
+        $scope      = $data['other']['scope'] ?? '';
 
         $externalserviceid = self::resolve_service_id();
         if (empty($externalserviceid)) {
@@ -91,6 +92,24 @@ class observers {
             $record->timecreated = time();
             $record->iprestriction = '';
             $DB->insert_record('external_tokens', $record);
+        }
+
+        // Record the OAuth scope granted for this bridged token, so
+        // webservice_mcp can enforce read/write permissions later without
+        // needing to match against local_oauth2's own token table (which
+        // uses a different token string entirely).
+        $scoperow = $DB->get_record('local_mcpbridge_token_scope', ['token' => $token]);
+
+        if ($scoperow) {
+            $scoperow->scope = $scope;
+            $scoperow->timecreated = time();
+            $DB->update_record('local_mcpbridge_token_scope', $scoperow);
+        } else {
+            $scoperecord = new \stdClass();
+            $scoperecord->token = $token;
+            $scoperecord->scope = $scope;
+            $scoperecord->timecreated = time();
+            $DB->insert_record('local_mcpbridge_token_scope', $scoperecord);
         }
     }
 }
