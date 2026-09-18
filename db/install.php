@@ -16,9 +16,9 @@
 
 /**
  * Post-install hook: auto-grants the webservice/mcp:use capability
- * to the Authenticated user role, and auto-creates the external
- * service this plugin bridges OAuth tokens into, so a fresh install
- * needs no manual numeric service ID.
+ * to the Authenticated user role, so a fresh install needs no manual
+ * capability assignment. The external service this plugin bridges
+ * OAuth tokens into is created separately, by db/services.php.
  *
  * @package    local_mcpbridge
  * @copyright  2026 AlmaBay Networks Pvt. Ltd.
@@ -48,18 +48,13 @@ function xmldb_local_mcpbridge_install() {
         $context->mark_dirty();
     }
 
-    $shortname = 'mcpbridge_service';
-    if (!$DB->record_exists('external_services', ['shortname' => $shortname])) {
-        $service = new stdClass();
-        $service->name = 'MCP Bridge Service';
-        $service->shortname = $shortname;
-        $service->enabled = 1;
-        $service->restrictedusers = 0;
-        $service->component = null;
-        $service->timecreated = time();
-        $service->timemodified = time();
-        $DB->insert_record('external_services', $service);
-    }
+    // Service creation is handled by db/services.php (Moodle's own
+    // external_update_services() mechanism), which correctly sets
+    // 'component' so the service is recognised as owned by this plugin.
+    // Creating it here too caused a collision on fresh installs: this
+    // hook would insert the service first (with no component set),
+    // then db/services.php would find a shortname collision against a
+    // service it doesn't recognise as its own.
 
     return true;
 }
