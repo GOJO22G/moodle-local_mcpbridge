@@ -28,15 +28,20 @@ defined('MOODLE_INTERNAL') || die();
  * Seed the moodle_mcp_read / moodle_mcp_write scope names into local_oauth2's
  * own scope catalog, if they don't already exist.
  *
- * Called from both db/install.php (fresh installs) and db/upgrade.php
- * (existing sites updating to a version that introduced this) - Moodle
- * runs install.php ONCE on a fresh install and jumps straight to the
- * current version, skipping every upgrade.php step entirely, so this
- * logic must exist in both places, not just upgrade.php.
+ * Called from classes/observers.php, on every access_token_created/updated
+ * event - NOT from db/install.php or db/upgrade.php. Those install-time
+ * hooks run in an order Moodle does not guarantee: on a fresh site
+ * installing both plugins together, local_mcpbridge can install before
+ * local_oauth2, meaning local_oauth2_scope would not exist yet and this
+ * seeding would silently never happen. Calling it from the observer
+ * sidesteps the ordering question entirely - that event can only ever
+ * fire once local_oauth2 is already installed and issuing real tokens,
+ * so its table is guaranteed to exist by then.
  *
- * Safe to call any number of times: guarded by both table_exists() and
+ * Safe to call on every single login: guarded by both table_exists() and
  * record_exists(), on top of local_oauth2_scope.scope's own unique key
- * at the DB level.
+ * at the DB level, so the (small) repeated cost is just two cheap
+ * existence checks once the rows already exist.
  *
  * @return void
  */

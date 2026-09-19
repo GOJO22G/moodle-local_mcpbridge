@@ -33,15 +33,13 @@ function xmldb_local_mcpbridge_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2026091304, 'local', 'mcpbridge');
     }
 
-    if ($oldversion < 2026091308) {
-        // Seeding logic lives in lib.php (local_mcpbridge_seed_oauth_scopes),
-        // shared with db/install.php so fresh installs and upgrades both
-        // seed the same way from one place, not two copies that could drift.
-        require_once(__DIR__ . '/../lib.php');
-        local_mcpbridge_seed_oauth_scopes();
-
-        upgrade_plugin_savepoint(true, 2026091308, 'local', 'mcpbridge');
-    }
+    // A previous version of this file had an upgrade step here (version
+    // 2026091308) that seeded moodle_mcp_read/write scope names directly.
+    // Removed: that logic is order-fragile the same way db/install.php's
+    // copy was (Moodle does not guarantee this plugin upgrades/installs
+    // after local_oauth2), so it now lives in classes/observers.php
+    // instead, run on every OAuth login rather than at install/upgrade
+    // time. See lib.php's local_mcpbridge_seed_oauth_scopes().
 
     return true;
 }

@@ -56,13 +56,13 @@ function xmldb_local_mcpbridge_install() {
     // then db/services.php would find a shortname collision against a
     // service it doesn't recognise as its own.
 
-    // Seed the moodle_mcp_read/write scope names local_oauth2 needs to
-    // know about. This must happen here too, not just in db/upgrade.php -
-    // Moodle runs install.php ONCE on a fresh install and jumps straight
-    // to the current version, skipping every upgrade.php step entirely,
-    // so upgrade.php's own seeding step would never run for a new install.
-    require_once(__DIR__ . '/../lib.php');
-    local_mcpbridge_seed_oauth_scopes();
+    // moodle_mcp_read/write scope seeding is NOT done here. Moodle does not
+    // guarantee install order between plugins - on a fresh site installing
+    // both together, this hook can run before local_oauth2 even exists,
+    // meaning its scope table would not exist yet either. That seeding now
+    // happens in classes/observers.php instead, on the first OAuth login,
+    // by which point local_oauth2 is guaranteed to be active. See lib.php's
+    // local_mcpbridge_seed_oauth_scopes() for the actual logic.
 
     return true;
 }

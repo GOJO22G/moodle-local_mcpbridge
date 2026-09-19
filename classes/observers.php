@@ -58,6 +58,16 @@ class observers {
     public static function handle_access_token_created_or_updated($event) {
         global $DB;
 
+        // Ensure the moodle_mcp_read/write scope names exist in local_oauth2's
+        // own catalog before anything below tries to use them. Deliberately
+        // NOT done in db/install.php/db/upgrade.php: Moodle does not guarantee
+        // install order between plugins, so on a fresh site local_mcpbridge
+        // could install before local_oauth2's own table even exists. This event
+        // can only fire once local_oauth2 is already active, so that table is
+        // guaranteed to exist here.
+        require_once(__DIR__ . '/../lib.php');
+        local_mcpbridge_seed_oauth_scopes();
+
         $data = $event->get_data();
         $userid     = $data['userid'];
         $token      = $data['other']['accesstoken'];
