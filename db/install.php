@@ -56,5 +56,13 @@ function xmldb_local_mcpbridge_install() {
     // then db/services.php would find a shortname collision against a
     // service it doesn't recognise as its own.
 
+    // Seed the moodle_mcp_read/write scope names local_oauth2 needs to
+    // know about. This must happen here too, not just in db/upgrade.php -
+    // Moodle runs install.php ONCE on a fresh install and jumps straight
+    // to the current version, skipping every upgrade.php step entirely,
+    // so upgrade.php's own seeding step would never run for a new install.
+    require_once(__DIR__ . '/../lib.php');
+    local_mcpbridge_seed_oauth_scopes();
+
     return true;
 }

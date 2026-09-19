@@ -34,28 +34,11 @@ function xmldb_local_mcpbridge_upgrade($oldversion) {
     }
 
     if ($oldversion < 2026091308) {
-        // Seed the two scope names this plugin relies on into local_oauth2's
-        // own scope catalog, so a fresh install of local_mcpbridge does not
-        // depend on an admin manually inserting these via SQL or a UI local_oauth2
-        // does not actually expose for this purpose. Safe to run more than once:
-        // local_oauth2_scope.scope has a unique key at the DB level, and we also
-        // check record_exists() first so no error is ever thrown either way.
-        $scopetable = new xmldb_table('local_oauth2_scope');
-
-        if ($dbman->table_exists($scopetable)) {
-            $requiredscopes = ['moodle_mcp_read', 'moodle_mcp_write'];
-
-            foreach ($requiredscopes as $scopename) {
-                if (!$DB->record_exists('local_oauth2_scope', ['scope' => $scopename])) {
-                    $scoperecord = new stdClass();
-                    $scoperecord->scope = $scopename;
-                    $scoperecord->is_default = 0;
-                    $DB->insert_record('local_oauth2_scope', $scoperecord);
-                }
-            }
-        } else {
-            debugging('local_mcpbridge upgrade: local_oauth2_scope table not found, skipping scope seeding. Is local_oauth2 installed?', DEBUG_DEVELOPER);
-        }
+        // Seeding logic lives in lib.php (local_mcpbridge_seed_oauth_scopes),
+        // shared with db/install.php so fresh installs and upgrades both
+        // seed the same way from one place, not two copies that could drift.
+        require_once(__DIR__ . '/../lib.php');
+        local_mcpbridge_seed_oauth_scopes();
 
         upgrade_plugin_savepoint(true, 2026091308, 'local', 'mcpbridge');
     }
